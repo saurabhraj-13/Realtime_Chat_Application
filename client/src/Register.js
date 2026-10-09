@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 function Register({ onBackToLogin }) {
   const [form, setForm] = useState({
@@ -75,9 +76,7 @@ function Register({ onBackToLogin }) {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/auth/check-username/${encodeURIComponent(
-          username
-        )}`
+        `${API_URL}/api/auth/check-username/${encodeURIComponent(username)}`
       );
 
       const data =
@@ -181,7 +180,7 @@ function Register({ onBackToLogin }) {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/register",
+        `${API_URL}/api/auth/register`,
         {
           method: "POST",
 
