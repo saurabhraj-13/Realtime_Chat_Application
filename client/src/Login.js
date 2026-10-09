@@ -1,133 +1,293 @@
-import React, { useEffect, useState } from "react";
-import socket from "./socket";
+import React, { useState } from "react";
 
-function Login({ setUsername }) {
+function Login({
+  onLogin,
+  onRegister
+}) {
 
-  const [name, setName] = useState("");
-  const [connecting, setConnecting] = useState(false);
+  const [username, setUsername] =
+    useState("");
 
-  useEffect(() => {
+  const [password, setPassword] =
+    useState("");
 
-    const handleSuccess = (username) => {
+  const [error, setError] =
+    useState("");
 
-      setConnecting(false);
-
-      setUsername(username);
-
-    };
-
-    const handleNameExists = () => {
-
-      setConnecting(false);
-
-      alert(
-        "Username already registered!\nPlease choose another username."
-      );
-
-    };
-
-    socket.on("join_success", handleSuccess);
-    socket.on("name_exists", handleNameExists);
-
-    return () => {
-
-      socket.off("join_success", handleSuccess);
-      socket.off("name_exists", handleNameExists);
-
-    };
-
-  }, [setUsername]);
+  const [loading, setLoading] =
+    useState(false);
 
 
-  const handleLogin = () => {
+  // =====================================================
+  // LOGIN
+  // =====================================================
 
-    const username = name.trim();
+  const handleLogin = async (e) => {
 
-    if (username === "") {
+    e.preventDefault();
 
-      alert("Please enter your username.");
+    setError("");
 
-      return;
 
-    }
+    // -----------------------------------------------
+    // VALIDATION
+    // -----------------------------------------------
 
-    if (username.length < 2) {
+    if (!username.trim()) {
 
-      alert(
-        "Username must contain at least 2 characters."
+      setError(
+        "Please enter your username"
       );
 
       return;
 
     }
 
-    setConnecting(true);
 
-    socket.emit("join", username);
+    if (!password) {
 
-  };
+      setError(
+        "Please enter your password"
+      );
+
+      return;
+
+    }
 
 
-  const handleKeyDown = (event) => {
+    setLoading(true);
 
-    if (event.key === "Enter") {
 
-      event.preventDefault();
+    try {
 
-      handleLogin();
+      // ---------------------------------------------
+      // SEND LOGIN REQUEST
+      // ---------------------------------------------
+
+      const response =
+        await fetch(
+          "http://localhost:5000/api/auth/login",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+
+              username:
+                username.trim(),
+
+              password:
+                password
+
+            })
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      // ---------------------------------------------
+      // LOGIN FAILED
+      // ---------------------------------------------
+
+      if (!response.ok) {
+
+        setError(
+          data.message ||
+          "Invalid username or password"
+        );
+
+        return;
+
+      }
+
+
+      // ---------------------------------------------
+      // SAVE JWT TOKEN
+      // ---------------------------------------------
+
+      localStorage.setItem(
+        "token",
+        data.token
+      );
+
+
+      // ---------------------------------------------
+      // SAVE USER
+      // ---------------------------------------------
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(
+          data.user
+        )
+      );
+
+
+      // ---------------------------------------------
+      // LOGIN SUCCESS
+      // ---------------------------------------------
+
+      onLogin(
+        data.user
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "Login error:",
+        error
+      );
+
+      setError(
+        "Unable to connect to server"
+      );
+
+    } finally {
+
+      setLoading(false);
 
     }
 
   };
 
+
+  // =====================================================
+  // UI
+  // =====================================================
 
   return (
 
-    <div className="login-page">
+    <div className="auth-page">
 
-      <div className="login-card">
+      <div className="auth-card">
 
-        <div className="login-logo">
+
+        {/* =============================================
+            LOGO
+        ============================================== */}
+
+        <div className="chatwave-logo">
           💬
         </div>
 
-        <h1>ChatWave</h1>
 
-        <p className="login-subtitle">
-          Connect and chat in real time
+        {/* =============================================
+            TITLE
+        ============================================== */}
+
+        <h1 className="auth-title">
+          Welcome to ChatWave
+        </h1>
+
+
+        <p className="auth-subtitle">
+          Login to your account
         </p>
 
 
-        <input
-          type="text"
-          value={name}
-          onChange={(event) =>
-            setName(event.target.value)
-          }
-          onKeyDown={handleKeyDown}
-          placeholder="Enter your username"
-          maxLength={20}
-          autoComplete="off"
-          autoFocus
-        />
+        {/* =============================================
+            LOGIN FORM
+        ============================================== */}
 
-
-        <button
-          className="join-btn"
-          onClick={handleLogin}
-          disabled={connecting}
+        <form
+          className="auth-form"
+          onSubmit={handleLogin}
         >
 
-          {connecting
-            ? "Joining..."
-            : "Join Chat"}
 
-        </button>
+          {/* USERNAME */}
+
+          <input
+            className="auth-input"
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) =>
+              setUsername(
+                e.target.value
+              )
+            }
+            autoComplete="username"
+            required
+          />
 
 
-        <p className="login-info">
-          Choose a unique username to continue
-        </p>
+          {/* PASSWORD */}
+
+          <input
+            className="auth-input"
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) =>
+              setPassword(
+                e.target.value
+              )
+            }
+            autoComplete="current-password"
+            required
+          />
+
+
+          {/* ERROR */}
+
+          {error && (
+
+            <p className="auth-error">
+              {error}
+            </p>
+
+          )}
+
+
+          {/* LOGIN BUTTON */}
+
+          <button
+            className="auth-button"
+            type="submit"
+            disabled={loading}
+          >
+
+            {loading
+              ? "Logging in..."
+              : "Login"}
+
+          </button>
+
+        </form>
+
+
+        {/* =============================================
+            REGISTER
+        ============================================== */}
+
+        <div className="auth-footer">
+
+          <span>
+            Don't have an account?
+          </span>
+
+
+          <button
+            type="button"
+            className="auth-link"
+            onClick={onRegister}
+          >
+
+            Create Account
+
+          </button>
+
+        </div>
+
 
       </div>
 
@@ -136,5 +296,6 @@ function Login({ setUsername }) {
   );
 
 }
+
 
 export default Login;
