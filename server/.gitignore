@@ -1,10 +1,17 @@
-node_modules/
-.env
-client/node_modules/
-server/node_modules/
-firebase-service-account.json
-# Firebase private credentials
-server/firebase-service-account.json.json
-
 # Dependencies
 node_modules/
+client/node_modules/
+server/node_modules/
+
+# Environment variables
+.env
+.env.*
+
+# Firebase private credentials
+firebase-service-account.json
+firebase-service-account.json.json
+server/firebase-service-account.json
+server/firebase-service-account.json.json
+
+# Build output
+client/dist/
