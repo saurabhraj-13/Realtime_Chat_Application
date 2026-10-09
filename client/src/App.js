@@ -6,7 +6,7 @@ import ForgotPassword from "./ForgotPassword";
 import DeviceTransfer from "./DeviceTransfer";
 import "./App.css";
 function App(){
-const [user,setUser]=useState(()=>{try{return JSON.parse(localStorage.getItem("user"))||null;}catch{return null;}});
+const [user,setUser]=useState(null);
 const [page,setPage]=useState("login");
 const [showTransfer,setShowTransfer]=useState(false);
 const handleLogin=(userData)=>{
