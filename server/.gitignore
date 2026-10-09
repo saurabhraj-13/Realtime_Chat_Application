@@ -10,8 +10,6 @@ server/node_modules/
 # Firebase private credentials
 firebase-service-account.json
 firebase-service-account.json.json
-server/firebase-service-account.json
-server/firebase-service-account.json.json
 
 # Build output
 client/dist/
