@@ -18,6 +18,8 @@ function Chat({username,onDeviceTransfer}){
   const [connected,setConnected]=useState(socket.connected);
   const [chatMode,setChatMode]=useState("global");
   const [selectedUser,setSelectedUser]=useState("");
+  const [sidebarSearch,setSidebarSearch]=useState("");
+const [chatFilter,setChatFilter]=useState("all");
   const [groupId,setGroupId]=useState("");
   const [groupMessages,setGroupMessages]=useState([]);
   const [privateMessages,setPrivateMessages]=useState([]);
@@ -555,6 +557,7 @@ function Chat({username,onDeviceTransfer}){
       await Notification.requestPermission();
     }
   };
+  const filteredUsers=users.filter((user)=>user.toLowerCase()!==String(username||"").toLowerCase()).filter((user)=>user.toLowerCase().includes(sidebarSearch.toLowerCase()));
   const currentMessages=getCurrentMessages();
   const getChatTitle=()=>{
     if(chatMode==="private")return `Chat with ${selectedUser}`;
