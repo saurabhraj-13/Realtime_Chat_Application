@@ -350,51 +350,36 @@ function Register({ onBackToLogin }) {
           )}
 
 
+          
           {/* USERNAME SUGGESTIONS */}
-
           {suggestions.length > 0 && (
             <div className="username-warning">
-
-              <p>
-                Try one of these usernames:
-              </p>
+              <p>Try one of these usernames:</p>
 
               <div className="suggestion-list">
+                {suggestions.map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    className="suggestion-button"
+                    onClick={() => {
+                      setForm((previous) => ({
+                        ...previous,
+                        username: suggestion
+                      }));
 
-                {suggestions.map(
-                  (suggestion) => (
-                    <button
-                      key={suggestion}
-                      type="button"
-                      className="suggestion-button"
-                      onClick={() => {
-
-                        setForm(
-                          (previous) => ({
-                            ...previous,
-                            username:
-                              suggestion
-                          })
-                        );
-
-                        setUsernameStatus(
-                          "✓ Username selected"
-                        );
-
-                        setSuggestions([]);
-                        setError("");
-                      }}
-                    >
-                      @{suggestion}
-                    </button>
-                  )
-                )}
-
+                      setUsernameStatus("✓ Username selected");
+                      setSuggestions([]);
+                      setError("");
+                    }}
+                  >
+                    @{suggestion}
+                  </button>
+                ))}
               </div>
 
             </div>
           )}
-
 
           {/* PASSWORD */}
 

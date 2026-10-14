@@ -13,6 +13,26 @@ const messageSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       required: true,
     },
+    attachments: [
+  {
+    originalName: {
+      type: String,
+      trim: true
+    },
+    storageKey: {
+      type: String,
+      trim: true
+    },
+    mimeType: {
+      type: String,
+      trim: true
+    },
+    size: {
+      type: Number,
+      min: 0
+    }
+  }
+],
 
     // Chat type:
     // global  = everyone

@@ -1,163 +1,84 @@
+
 import React, { useState } from "react";
 
+const API_URL =
+  process.env.REACT_APP_API_URL ||
+  "https://realtime-chat-application-2-3aeu.onrender.com";
+
 function ForgotPassword({ onBackToLogin }) {
-  const [step, setStep] = useState(1);
-
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [otp, setOtp] = useState("");
+  const [username, setUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
-
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-
-  const sendOTP = async (e) => {
-    e.preventDefault();
-
+  const handleReset = async (event) => {
+    event.preventDefault();
     setError("");
+    setMessage("");
 
-    try {
-      const response = await fetch(
-        "http://localhost:5000/api/auth/forgot-password/send-otp",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            phoneNumber
-          })
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.message);
-        return;
-      }
-
-      setMessage("OTP sent successfully");
-
-      setStep(2);
-
-    } catch (error) {
-      setError("Unable to connect to server");
+    if (!username.trim() || !newPassword) {
+      setError("Please enter your username and new password.");
+      return;
     }
+
+    if (newPassword.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    setError(
+      "Password recovery needs a verified recovery method. A username alone cannot securely reset an account."
+    );
   };
 
+  return (
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="chatwave-logo">💬</div>
 
-  const resetPassword = async (e) => {
-    e.preventDefault();
+        <h1 className="auth-title">Reset Password</h1>
+        <p className="auth-subtitle">Recover your ChatWave account</p>
 
-    setError("");
-
-    try {
-      const response = await fetch(
-        "http://localhost:5000/api/auth/forgot-password/reset",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            phoneNumber,
-            otp,
-            newPassword
-          })
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.message);
-        return;
-      }
-
-      alert("Password reset successfully!");
-
-      onBackToLogin();
-
-    } catch (error) {
-      setError("Unable to connect to server");
-    }
-  };
-
-
-  if (step === 1) {
-    return (
-      <div>
-
-        <h1>Forgot Password</h1>
-
-        <form onSubmit={sendOTP}>
-
+        <form className="auth-form" onSubmit={handleReset}>
           <input
-            type="tel"
-            placeholder="+919905782647"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
+            className="auth-input"
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            autoComplete="username"
             required
           />
 
-          {error && (
-            <p style={{ color: "red" }}>
-              {error}
-            </p>
-          )}
+          <input
+            className="auth-input"
+            type="password"
+            placeholder="New Password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            autoComplete="new-password"
+            required
+          />
 
-          <button type="submit">
-            Send OTP
+          {error && <p className="auth-error">{error}</p>}
+          {message && <p className="auth-success">{message}</p>}
+
+          <button className="auth-button" type="submit" disabled={loading}>
+            {loading ? "Resetting..." : "Reset Password"}
           </button>
-
         </form>
 
-        <button onClick={onBackToLogin}>
-          Back to Login
-        </button>
-
+        <div className="auth-footer">
+          <button
+            type="button"
+            className="auth-link"
+            onClick={onBackToLogin}
+          >
+            ← Back to Login
+          </button>
+        </div>
       </div>
-    );
-  }
-
-
-  return (
-    <div>
-
-      <h1>Reset Password</h1>
-
-      <form onSubmit={resetPassword}>
-
-        <input
-          type="text"
-          placeholder="Enter OTP"
-          value={otp}
-          onChange={(e) => setOtp(e.target.value)}
-          maxLength="6"
-          required
-        />
-
-        <input
-          type="password"
-          placeholder="New Password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          required
-        />
-
-        {error && (
-          <p style={{ color: "red" }}>
-            {error}
-          </p>
-        )}
-
-        <button type="submit">
-          Reset Password
-        </button>
-
-      </form>
-
     </div>
   );
 }
